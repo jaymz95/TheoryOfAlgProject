@@ -56,5 +56,10 @@ int main(int argc, char *argv[]) {
     printf("SHR(x, 4)   = %08x\n", SHR(x, 4));//PADDED WITH 0's
     printf("ROTR(x, 4)  = %08x\n", ROTR(x, 4));//PADDED WITH VALUE THAT WAS PUSHED OFF THE EDGE
 
+    printf("Sig0(x)     = %08x\n", Sig0(x));
+    printf("Sig1(x)     = %08x\n", Sig1(x));
+    printf("sig0(x)     = %08x\n", sig0(x));
+    printf("sig1(x)     = %08x\n", sig1(x));
+
     return 0;
 }
