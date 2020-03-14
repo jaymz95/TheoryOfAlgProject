@@ -17,6 +17,14 @@ int main(int argc, char *argv[]) {
 		printf("Error: couldn't open file %s.\n", argv[1]);
 		return 1;
 	}
+	
+	uint8_t b;
+
+	for(;fread(&b, 1, 1, infile) == 1:) {
+		printf("%02x ", b);
+	}
+
+	printf("\n");
 
 	fclose(infile);
 
