@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 // Section 4.2.2
-const WORD K[] = {
+const uint32_t K[] = {
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 
   0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 
   0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 
@@ -19,7 +19,7 @@ const WORD K[] = {
 };
 
  // Section 5.3.3
-uint_32 H[] = {
+uint32_t H[] = {
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
 };
@@ -69,20 +69,20 @@ int main(int argc, char *argv[]) {
     uint32_t y = 0xcccccccc;
     uint32_t z = 0x55555555;
 
-    printf("x         = %08x\n", x);
-    printf("y         = %08x\n", y);
-    printf("z         = %08x\n", z);
+    printf("x          = %08x\n", x);
+    printf("y          = %08x\n", y);
+    printf("z          = %08x\n", z);
 
     printf("Ch(x,y,z)  = %08x\n", Ch(x, y, z));
     printf("Maj(x,y,z) = %08x\n", Maj(x, y, z));
 
-    printf("SHR(x, 4)   = %08x\n", SHR(x, 4));//PADDED WITH 0's
-    printf("ROTR(x, 4)  = %08x\n", ROTR(x, 4));//PADDED WITH VALUE THAT WAS PUSHED OFF THE EDGE
+    printf("SHR(x, 4)  = %08x\n", SHR(x, 4));//PADDED WITH 0's
+    printf("ROTR(x, 4) = %08x\n", ROTR(x, 4));//PADDED WITH VALUE THAT WAS PUSHED OFF THE EDGE
 
-    printf("Sig0(x)     = %08x\n", Sig0(x));
-    printf("Sig1(x)     = %08x\n", Sig1(x));
-    printf("sig0(x)     = %08x\n", sig0(x));
-    printf("sig1(x)     = %08x\n", sig1(x));
+    printf("Sig0(x)    = %08x\n", Sig0(x));
+    printf("Sig1(x)    = %08x\n", Sig1(x));
+    printf("sig0(x)    = %08x\n", sig0(x));
+    printf("sig1(x)    = %08x\n", sig1(x));
 
     return 0;
 }
