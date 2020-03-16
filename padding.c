@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 	uint64_t nobits;
 
 	for(nobits = 0;fread(&b, 1, 1, infile) == 1; nobits += 8) {
-		printf("%02x" PRIx8 " ", b);
+		printf("%02" PRIx8, b);
 	}
 
 	printf("%02" PRIx8 " ", 0x80); // Bits: 1000 0000
