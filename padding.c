@@ -43,10 +43,10 @@ int main(int argc, char *argv[]) {
 		printf("%02" PRIx8, M.eight[i]);
 	}
 
-	printf("%02" PRIx8 " ", 0x80); // Bits: 1000 0000
+	printf("%02" PRIx8, 0x80); // Bits: 1000 0000
 
 	for (uint64_t i = nozerobytes(nobits); i > 0; i--)
-		printf("%02" PRIx8 " ", 0x00);
+		printf("%02" PRIx8, 0x00);
 
 
 	printf("%016" PRIx64 "\n", nobits);
