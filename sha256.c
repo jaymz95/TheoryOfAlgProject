@@ -18,12 +18,6 @@ const uint32_t K[] = {
   0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
- // Section 5.3.3
-uint32_t H[] = {
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
-};
-
 //section 4.1.2
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
     return (x & y) ^ (~x & z);
@@ -64,25 +58,85 @@ uint32_t sig1(uint32_t x){
     return ROTR(x, 17) ^ ROTR(x, 19) ^ SHR(x, 10);
 }
 
+union block {
+	uint64_t sixfour[8];
+	uint32_t threetwo[16];
+	uint8_t eight[64];
+};
+
+enum flag {
+    READ, PAD0, PAD1, FINISH
+};
+
+uint64_t nozerobytes(uint64_t nobits) {
+	uint64_t result = 512ULL - (nobits % 512ULL);
+
+	if (result < 65)
+		result +=512;
+	result -= 72;
+
+	return (result / 8ULL);
+}
+
+int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status) {
+
+	uint8_t i;
+
+	for(*nobits = 0, i = 0;fread(&M.eight[i], 1, 1, infile) == 1; *nobits += 8) {
+		printf("%02" PRIx8, M.eight[i]);
+	}
+
+    // appending 1 bit
+	printf("%02" PRIx8, 0x80); // Bits: 1000 0000
+
+    // appending zeros (padding)
+	for (uint64_t i = nozerobytes(*nobits); i > 0; i--)
+		printf("%02" PRIx8, 0x00);
+    
+    // length of original message
+	printf("%016" PRIx64 "\n", *nobits);
+
+}
+
+void nexthash(union block *M, uint32_t *H) {
+
+}
+
 int main(int argc, char *argv[]) {
-    uint32_t x = 0x0f0f0f0f;
-    uint32_t y = 0xcccccccc;
-    uint32_t z = 0x55555555;
 
-    printf("x          = %08x\n", x);
-    printf("y          = %08x\n", y);
-    printf("z          = %08x\n", z);
+	if (argc != 2) {
+		printf("Error: expected single filename as argument.\n");
+		return 1;
+	}
 
-    printf("Ch(x,y,z)  = %08x\n", Ch(x, y, z));
-    printf("Maj(x,y,z) = %08x\n", Maj(x, y, z));
+	FILE *infile = fopen(argv[1], "rb");
+	if (!infile) {
+		printf("Error: couldn't open file %s.\n", argv[1]);
+		return 1;
+	}
+	
+    // current padded message block
+	union block M;
+    uint64_t nobits = 0;
+    enum flag status = READ;
 
-    printf("SHR(x, 4)  = %08x\n", SHR(x, 4));//PADDED WITH 0's
-    printf("ROTR(x, 4) = %08x\n", ROTR(x, 4));//PADDED WITH VALUE THAT WAS PUSHED OFF THE EDGE
+    // Section 5.3.3
+    uint32_t H[] = {
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+        0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
+    };
+    
+    // read thriugh all of the padded message blocks
+    while (nextblock(&M, infile, nobits, status)) {
+        //calculate the next hash value
+        nexthash(&M, &H);
+    }
 
-    printf("Sig0(x)    = %08x\n", Sig0(x));
-    printf("Sig1(x)    = %08x\n", Sig1(x));
-    printf("sig0(x)    = %08x\n", sig0(x));
-    printf("sig1(x)    = %08x\n", sig1(x));
+    for (int i = 0; i < 8; i++){
+        printf("%02" PRIX32, H[i]);
+    }
+    printf("\n");
+	fclose(infile);
 
-    return 0;
+	return 0;
 }
