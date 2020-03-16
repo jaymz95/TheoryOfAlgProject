@@ -12,5 +12,8 @@ int main (int argc, char *argv[]) {
 
 	myunion.si = 0xff;
 
+	printf("16bit: %04" PRIx16 "\n", myunion.si);
+	printf(" 8bit: %02" PRIx8 " %02" PRIX8 "\n", myunion.ei[0], myunion.ei[1]);
+
 	return 0;
 }
