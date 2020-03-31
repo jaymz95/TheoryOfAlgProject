@@ -100,6 +100,23 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
 
 void nexthash(union block *M, uint32_t *H) {
 
+    // Section 6.2.2
+    uint32_t W[64];
+    uint32_t a, b, c, d, e, f, g, h;
+    int t;
+
+    for (t = 0; t < 16; t++)
+        // dereferencing pointer (M->threeteo[t])
+        W[t] = M->threetwo[t];
+    
+    for (t = 16; t < 64; t++)
+        W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
+    // H is a pointer, H[0] does an automatic dereference
+    a = H[0]; b = H[1]; c = H[2]; d = H[3];
+    e = H[4]; f = H[5]; g = H[6]; h = H[7];
+
+    
+
 }
 
 int main(int argc, char *argv[]) {
