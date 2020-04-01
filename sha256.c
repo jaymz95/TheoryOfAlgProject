@@ -64,6 +64,8 @@ union block {
 	uint8_t eight[64];
 };
 
+// enum is set to reat at start
+// if i cant read 64 bits from file pad and finish
 enum flag {
     READ, PAD0, PAD1, FINISH
 };
@@ -78,23 +80,52 @@ uint64_t nozerobytes(uint64_t nobits) {
 	return (result / 8ULL);
 }
 
+// is passed next block (*M)
+// star (*) means memory address
 int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status) {
 
-	uint8_t i;
+    // finnish breaks while loop in hash
+    if(*status == FINISH)
+        return 0;
+    
+    if (*status== PAD1) {
+        // assign first bite on M
+        // first bite out of 8 in M.eight is assighed (1 bite is 8 bits)
+        // 64 bit integer minus the first bite(8) because it is already assigned = 57
+        M.eight[0] = 0x80;
+        for (int i = 1; i < 56; i++)
+            M.eight[i] = 0;
+        M.sixtyfour[7] = *nobits;
+        *status = FINISH;
+        return 1;
+    }
 
-	for(*nobits = 0, i = 0;fread(&M.eight[i], 1, 1, infile) == 1; *nobits += 8) {
-		printf("%02" PRIx8, M.eight[i]);
-	}
+    if (*status== PAD2) {
+        for (int i = 0; i < 56; i++)
+            M.eight[i] = 0;
+        M.sixtyfour[7] = *nobits;
+        *status = FINISH;
+        return 1;
+    }
 
-    // appending 1 bit
-	printf("%02" PRIx8, 0x80); // Bits: 1000 0000
+	size_t nobytesread = fread(M.eight, 1, 64, infile);
+    if(nobytesread == 64)
+        return 1;
+
+    // pad in last block if possible (can fit)
+    // otherwise add another block full of padding
+    if(nobytesread < 56)    {
+        M.eight[nobytesread] = 0x80;
+        for (int i = nobytesread +1; i<56; i++) 
+            M.eight[i] = 0
+        M.sixtyfour[7] = *nobits;
+        *status = FINISH;
+        return 1;
+    }
 
     // appending zeros (padding)
 	for (uint64_t i = nozerobytes(*nobits); i > 0; i--)
 		printf("%02" PRIx8, 0x00);
-    
-    // length of original message
-	printf("%016" PRIx64 "\n", *nobits);
 
 }
 
@@ -122,7 +153,7 @@ void nexthash(union block *M, uint32_t *H) {
         d = c; c = b; b = a; a = T1 + T2;
         H[0] = a + H[0]; H[1] = b + H[1]; H[2] = c + H[2]; H[3] =d + H[3];
         H[4] = e + H[4]; H[5] = f + H[5]; H[6] = g + H[6]; H[7] = f + H[7];
-        
+
 
     }
 
