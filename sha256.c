@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdint.h>
+#include <inttypes.h>
 
 // Section 4.2.2
 const uint32_t K[] = {
@@ -67,18 +67,8 @@ union block {
 // enum is set to reat at start
 // if i cant read 64 bits from file pad and finish
 enum flag {
-    READ, PAD0, PAD1, FINISH
+    READ, PAD0, FINISH
 };
-
-uint64_t nozerobytes(uint64_t nobits) {
-	uint64_t result = 512ULL - (nobits % 512ULL);
-
-	if (result < 65)
-		result +=512;
-	result -= 72;
-
-	return (result / 8ULL);
-}
 
 // is passed next block (*M)
 // star (*) means memory address
@@ -87,45 +77,41 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
     // finnish breaks while loop in hash
     if(*status == FINISH)
         return 0;
-    
-    if (*status== PAD1) {
-        // assign first bite on M
-        // first bite out of 8 in M.eight is assighed (1 bite is 8 bits)
-        // 64 bit integer minus the first bite(8) because it is already assigned = 57
-        M.eight[0] = 0x80;
-        for (int i = 1; i < 56; i++)
-            M.eight[i] = 0;
-        M.sixtyfour[7] = *nobits;
-        *status = FINISH;
-        return 1;
-    }
 
-    if (*status== PAD2) {
+    if (*status== PAD0) {
         for (int i = 0; i < 56; i++)
-            M.eight[i] = 0;
-        M.sixtyfour[7] = *nobits;
+            M->eight[i] = 0;
+        M->sixfour[7] = *nobits;
         *status = FINISH;
         return 1;
     }
 
-	size_t nobytesread = fread(M.eight, 1, 64, infile);
+	size_t nobytesread = fread(M->eight, 1, 64, infile);
     if(nobytesread == 64)
         return 1;
 
     // pad in last block if possible (can fit)
     // otherwise add another block full of padding
     if(nobytesread < 56)    {
-        M.eight[nobytesread] = 0x80;
+        M->eight[nobytesread] = 0x80;
         for (int i = nobytesread +1; i<56; i++) 
-            M.eight[i] = 0
-        M.sixtyfour[7] = *nobits;
+            M->eight[i] = 0;
+        M->sixfour[7] = *nobits;
         *status = FINISH;
         return 1;
+
+
     }
 
-    // appending zeros (padding)
-	for (uint64_t i = nozerobytes(*nobits); i > 0; i--)
-		printf("%02" PRIx8, 0x00);
+    // last block to big to pad in the same block, 
+    // extra block full of padding added
+    M->eight[nobytesread] = 0x80;
+    for (int i = nobytesread + 1; i < 64; i++)
+        M->eight[i] = 0;
+    *status  = PAD0;
+    return 1;
+
+    
 
 }
 
@@ -186,9 +172,9 @@ int main(int argc, char *argv[]) {
     };
     
     // read thriugh all of the padded message blocks
-    while (nextblock(&M, infile, nobits, status)) {
+    while (nextblock(&M, infile, &nobits, &status)) {
         //calculate the next hash value
-        nexthash(&M, &H);
+        nexthash(&M, H);
     }
 
     for (int i = 0; i < 8; i++){
