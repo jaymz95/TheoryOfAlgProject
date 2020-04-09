@@ -143,9 +143,6 @@ void nexthash(union block *M, uint32_t *H) {
 
 
     }
-
-
-
 }
 
 int main(int argc, char *argv[]) {
