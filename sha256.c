@@ -111,8 +111,6 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
     *status  = PAD0;
     return 1;
 
-    
-
 }
 
 void nexthash(union block *M, uint32_t *H) {
@@ -178,7 +176,7 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 0; i < 8; i++){
-        printf("%02" PRIX32, H[i]);
+        printf("%02" PRIx32, H[i]);
     }
     printf("\n");
 	fclose(infile);
