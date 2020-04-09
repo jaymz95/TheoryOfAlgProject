@@ -58,6 +58,9 @@ uint32_t sig1(uint32_t x){
     return ROTR(x, 17) ^ ROTR(x, 19) ^ SHR(x, 10);
 }
 
+// 64 byte variable as 3 types as shown
+// problem with compiler and OS sometimes 
+// depending on how the OS reads the Block in each type 
 union block {
 	uint64_t sixfour[8];
 	uint32_t threetwo[16];
