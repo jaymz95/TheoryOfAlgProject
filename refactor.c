@@ -138,19 +138,25 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
 uint64_t swap_endian(uint64_t x){
 
     uint64_t mask[8];
+    // 0xff is the hexadecimal number FF which has a integer value of 255.
+    // And the binary representation of FF is 
+    // 00000000 00000000 00000000 00000000 00000000 00000000 00000000 11111111 
     mask[0] = 0xff;
+
+    // moves zeros left 8 zeros (00000000)
+    // e.g. 00000000 00000000 00000000 00000000 00000000 00000000 11111111 00000000
     for(int i = 1; i< 8; i++)
         mask[i] = mask[0] << (8 * i);
     
     uint64_t y = 
         (x >> 56) & mask[0]
-        ((x >> 40) & mask[1])
-        ((x >> 24) & mask[2])
-        ((x >>  8) & mask[3])
-        ((x <<  8) & mask[4])
-        ((x << 24) & mask[5])
-        ((x << 40) & mask[6])
-        ((x << 56) & mask[7])
+        ^ ((x >> 40) & mask[1])
+        ^ ((x >> 24) & mask[2])
+        ^ ((x >>  8) & mask[3])
+        ^ ((x <<  8) & mask[4])
+        ^ ((x << 24) & mask[5])
+        ^ ((x << 40) & mask[6])
+        ^ ((x << 56) & mask[7]);
         
     return y;
 }
