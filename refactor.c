@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <inttypes.h>
-#include <endian.h>
+#include <byteswap.h>
 
 //Define word Section 2.1
 #define WORD uint32_t
@@ -97,6 +97,8 @@ void nexthash(WORD *M, WORD *H) {
 // Reads the next Block of the padded message from input file
 int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status) {
 
+    int i; 
+
     // finnish breaks while loop in hash
     if(*status == FINISH)
         return 0;
@@ -104,22 +106,33 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
     if (*status== PAD0) {
         for (int i = 0; i < 56; i++)
             M->eight[i] = 0x00;
-        M->sixfour[7] = *nobits;
+        M->sixfour[7] = bswap_64(*nobits);
         *status = FINISH;
         return 1;
     }
 
 	size_t nobytesread = fread(M->eight, 1, 64, infile);
-    if(nobytesread == 64)
+    if(nobytesread == 64){
+        for (i = 0; i < 16; i++){
+            // bswap changes to big endian integers
+            M->threetwo[i] = bswap_32(M->threetwo[i]);
+        }
         return 1;
+    }
 
     // pad in last block if possible (can fit)
     // otherwise add another block full of padding
-    if(nobytesread < 56)    {
+    if(nobytesread < 56) {
         M->eight[nobytesread] = 0x80;
-        for (int i = nobytesread +1; i<56; i++) 
+        for (i = nobytesread +1; i<56; i++) 
             M->eight[i] = 0;
-        M->sixfour[7] = *nobits;
+        // everything but the last 64 bit integer i.e. 14*32
+        // rather than 16*32
+        for (i = 0; i < 14; i++)
+            // bswap changes to big endian integers
+            M->threetwo[i] = bswap_32(M->threetwo[i]);
+        // bswap swaps endian
+        M->sixfour[7] = bswap_64(*nobits);
         *status = FINISH;
         return 1;
 
@@ -131,34 +144,11 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
     M->eight[nobytesread] = 0x80;
     for (int i = nobytesread + 1; i < 64; i++)
         M->eight[i] = 0;
+    for (i = 0; i < 16; i++)
+        // bswap changes to big endian integers
+        M->threetwo[i] = bswap_32(M->threetwo[i]);
     *status  = PAD0;
     return 1;
-}
-
-uint64_t swap_endian(uint64_t x){
-
-    uint64_t mask[8];
-    // 0xff is the hexadecimal number FF which has a integer value of 255.
-    // And the binary representation of FF is 
-    // 00000000 00000000 00000000 00000000 00000000 00000000 00000000 11111111 
-    mask[0] = 0xff;
-
-    // moves zeros left 8 zeros (00000000)
-    // e.g. 00000000 00000000 00000000 00000000 00000000 00000000 11111111 00000000
-    for(int i = 1; i< 8; i++)
-        mask[i] = mask[0] << (8 * i);
-    
-    uint64_t y = 
-        (x >> 56) & mask[0]
-        ^ ((x >> 40) & mask[1])
-        ^ ((x >> 24) & mask[2])
-        ^ ((x >>  8) & mask[3])
-        ^ ((x <<  8) & mask[4])
-        ^ ((x << 24) & mask[5])
-        ^ ((x << 40) & mask[6])
-        ^ ((x << 56) & mask[7]);
-        
-    return y;
 }
 
 int main(int argc, char *argv[]) {
