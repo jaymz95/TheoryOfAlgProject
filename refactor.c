@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <inttypes.h>
+#include <endian.h>
 
 //Define word Section 2.1
 #define WORD uint32_t
@@ -72,7 +73,7 @@ void nexthash(WORD *M, WORD *H) {
 
     for (t = 0; t < 16; t++)
         // dereferencing pointer (M->threeteo[t])
-        W[t] = M->threetwo[t];
+        W[t] = M[t];
     
     for (t = 16; t < 64; t++)
         W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
@@ -85,11 +86,10 @@ void nexthash(WORD *M, WORD *H) {
         T2 = Sig0(a) + Maj(a, b, c);
         h = g; g = f; f = e; e = d + T1;
         d = c; c = b; b = a; a = T1 + T2;
-        H[0] = a + H[0]; H[1] = b + H[1]; H[2] = c + H[2]; H[3] =d + H[3];
-        H[4] = e + H[4]; H[5] = f + H[5]; H[6] = g + H[6]; H[7] = f + H[7];
-
-
     }
+    H[0] = a + H[0]; H[1] = b + H[1]; H[2] = c + H[2]; H[3] = d + H[3];
+    H[4] = e + H[4]; H[5] = f + H[5]; H[6] = g + H[6]; H[7] = h + H[7];
+
 }
 
 // is passed next block (*M)
@@ -103,7 +103,7 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
 
     if (*status== PAD0) {
         for (int i = 0; i < 56; i++)
-            M->eight[i] = 0;
+            M->eight[i] = 0x00;
         M->sixfour[7] = *nobits;
         *status = FINISH;
         return 1;
@@ -133,7 +133,26 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
         M->eight[i] = 0;
     *status  = PAD0;
     return 1;
+}
 
+uint64_t swap_endian(uint64_t x){
+
+    uint64_t mask[8];
+    mask[0] = 0xff;
+    for(int i = 1; i< 8; i++)
+        mask[i] = mask[0] << (8 * i);
+    
+    uint64_t y = 
+        (x >> 56) & mask[0]
+        ((x >> 40) & mask[1])
+        ((x >> 24) & mask[2])
+        ((x >>  8) & mask[3])
+        ((x <<  8) & mask[4])
+        ((x << 24) & mask[5])
+        ((x << 40) & mask[6])
+        ((x << 56) & mask[7])
+        
+    return y;
 }
 
 int main(int argc, char *argv[]) {
