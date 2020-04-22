@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+//Define word Section 2.1
+#define WORD uint32_t
 
 // Note: All variables are unsigned 32 bit and wrap modulo 2^32 when calculating
 uint32_t s[64], K[64];
@@ -123,4 +125,91 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
         M->threetwo[i] = bswap_32(M->threetwo[i]);
     *status  = PAD0;
     return 1;
+}
+
+void nexthash(WORD *M, WORD *H) {
+    
+    // Section 6.2.2
+    WORD W[16];
+    WORD a, b, c, d, e, f, g, h, T1, T2;
+    int t;
+
+    for (t = 0; t < 16; t++)
+        // dereferencing pointer (M->threeteo[t])
+        W[t] = M[t];
+        
+    // Initialize hash value for this chunk:
+    uint32_t A = a0;
+    uint32_t B = b0;
+    uint32_t C = c0;
+    uint32_t D = d0;
+    
+    for (t = 0; t < 64; t++){
+        uint32_t F, g;
+        if (i >= 0 && i < 16){
+            F = (B & C) | ((!B) & D);
+            g = i;
+        }
+    }
+    
+    for (t = 16; t < 64; t++)
+        W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
+    // H is a pointer, H[0] does an automatic dereference
+    a = H[0]; b = H[1]; c = H[2]; d = H[3];
+    e = H[4]; f = H[5]; g = H[6]; h = H[7];
+
+    for (t = 0; t < 64; t++) {
+        T1 = h + Sig1(e) + Ch(e, f, g) + K[t] + W[t];
+        T2 = Sig0(a) + Maj(a, b, c);
+        h = g; g = f; f = e; e = d + T1;
+        d = c; c = b; b = a; a = T1 + T2;
+    }
+    H[0] = a + H[0]; H[1] = b + H[1]; H[2] = c + H[2]; H[3] = d + H[3];
+    H[4] = e + H[4]; H[5] = f + H[5]; H[6] = g + H[6]; H[7] = h + H[7];
+
+}
+
+int main(int argc, char *argv[]) {
+
+    // Expect and open a single filename
+	if (argc != 2) {
+		printf("Error: expected single filename as argument.\n");
+		return 1;
+	}
+
+	FILE *infile = fopen(argv[1], "rb");
+	if (!infile) {
+		printf("Error: couldn't open file %s.\n", argv[1]);
+		return 1;
+	}
+	
+    // current padded message block
+	union block M;
+    uint64_t nobits = 0;
+    enum flag status = READ;
+
+    // Section 5.3.3
+    // WORD H[] = {
+    //     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    //     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
+    // };
+    
+    // read thriugh all of the padded message blocks
+    // structs and unions in c are passed by value
+    // pass the address of M (&M)
+    while (nextblock(&M, infile, &nobits, &status)) {
+        //calculate the next hash value
+        // M is not a pointer in this case (no arrow (->))
+        // M.threetwo with no [] passes the
+        // memory address of the first 32 integers
+        nexthash(M.threetwo, H);
+    }
+
+    for (int i = 0; i < 8; i++){
+        printf("%02" PRIx32, H[i]);
+    }
+    printf("\n");
+	fclose(infile);
+
+	return 0;
 }
