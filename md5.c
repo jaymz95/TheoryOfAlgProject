@@ -127,7 +127,7 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
     return 1;
 }
 
-void nexthash(WORD *M, WORD *H) {
+void nexthash(WORD *M) {
     
     // Section 6.2.2
     WORD W[16];
@@ -150,6 +150,24 @@ void nexthash(WORD *M, WORD *H) {
             F = (B & C) | ((!B) & D);
             g = i;
         }
+        else if (i >= 16 && i <= 31) {
+            F = (D & B) | ((!D) & C);
+            g = (5*i + 1) % 16;
+        }
+        else if (i >= 32 && i <= 47) {
+            F = B ^ C ^ D;
+            g = (3*i + 5) % 16;
+        }
+        else if (i >= 48 && i <= 63) {
+            F = C ^ (B | (!D));
+            g = (7*i) % 16;
+        }
+        // Be wary of the below definitions of a,b,c,d
+        F = F + A + K[i] + M[g];  // M[g] must be a 32-bits block
+        A = D;
+        D = C;
+        C = B;
+        B = B + leftrotate(F, s[i]);
     }
     
     for (t = 16; t < 64; t++)
@@ -182,6 +200,8 @@ int main(int argc, char *argv[]) {
 		printf("Error: couldn't open file %s.\n", argv[1]);
 		return 1;
 	}
+
+    //FILE *infile = "The quick brown fox jumps over the lazy dog.";
 	
     // current padded message block
 	union block M;
@@ -203,13 +223,20 @@ int main(int argc, char *argv[]) {
         // M.threetwo with no [] passes the
         // memory address of the first 32 integers
         nexthash(M.threetwo, H);
+        
     }
+    char digest[16] = a0 + b0 + c0 + d0; // (Output is in little-endian)
 
-    for (int i = 0; i < 8; i++){
-        printf("%02" PRIx32, H[i]);
+    for (int i = 0; i < 16; i++){
+        printf("%02" PRIx32 " ", digest[i]);
     }
     printf("\n");
 	fclose(infile);
 
 	return 0;
+}
+
+// leftrotate function definition
+leftrotate (x, c){
+    return ((x << c) | (x >> (32-c)));
 }
