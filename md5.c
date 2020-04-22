@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
     
     // read thriugh all of the padded message blocks
     // structs and unions in c are passed by value
-    // pass the address of M (&M)
+    // pass the address of M (&)
     while (nextblock(&M, infile, &nobits, &status)) {
         //calculate the next hash value
         // M is not a pointer in this case (no arrow (->))
