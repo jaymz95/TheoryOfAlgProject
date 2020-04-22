@@ -140,40 +140,45 @@ void nexthash(WORD *M) {
     WORD a, b, c, d, e, f, g, h, T1, T2;
     int t;
 
-    for (t = 0; t < 16; t++)
+    for (t = 0; t < 16; t++){
         // dereferencing pointer (M->threeteo[t])
         W[t] = M[t];
         
-    // Initialize hash value for this chunk:
-    uint32_t A = a0;
-    uint32_t B = b0;
-    uint32_t C = c0;
-    uint32_t D = d0;
-    
-    for (t = 0; t < 64; t++){
-        uint32_t F, g;
-        if (i >= 0 && i < 16){
-            F = (B & C) | ((!B) & D);
-            g = i;
+        // Initialize hash value for this chunk:
+        uint32_t A = a0;
+        uint32_t B = b0;
+        uint32_t C = c0;
+        uint32_t D = d0;
+        
+        for (t = 0; t < 64; t++){
+            uint32_t F, g;
+            if (i >= 0 && i < 16){
+                F = (B & C) | ((!B) & D);
+                g = i;
+            }
+            else if (i >= 16 && i <= 31) {
+                F = (D & B) | ((!D) & C);
+                g = (5*i + 1) % 16;
+            }
+            else if (i >= 32 && i <= 47) {
+                F = B ^ C ^ D;
+                g = (3*i + 5) % 16;
+            }
+            else if (i >= 48 && i <= 63) {
+                F = C ^ (B | (!D));
+                g = (7*i) % 16;
+            }
+            // Be wary of the below definitions of a,b,c,d
+            F = F + A + K[i] + M[g];  // M[g] must be a 32-bits block
+            A = D;
+            D = C;
+            C = B;
+            B = B + leftrotate(F, s[i]);
         }
-        else if (i >= 16 && i <= 31) {
-            F = (D & B) | ((!D) & C);
-            g = (5*i + 1) % 16;
-        }
-        else if (i >= 32 && i <= 47) {
-            F = B ^ C ^ D;
-            g = (3*i + 5) % 16;
-        }
-        else if (i >= 48 && i <= 63) {
-            F = C ^ (B | (!D));
-            g = (7*i) % 16;
-        }
-        // Be wary of the below definitions of a,b,c,d
-        F = F + A + K[i] + M[g];  // M[g] must be a 32-bits block
-        A = D;
-        D = C;
-        C = B;
-        B = B + leftrotate(F, s[i]);
+        a0 = a0 + A;
+        b0 = b0 + B;
+        c0 = c0 + C;
+        d0 = d0 + D;
     }
 
 }
