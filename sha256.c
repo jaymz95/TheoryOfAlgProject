@@ -88,22 +88,30 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
         *status = FINISH;
         return 1;
     }
-
-	size_t nobytesread = fread(M->eight, 1, 64, infile);
+    // Parameters
+    // M->eight − This is the pointer to a block of memory with a minimum size of size*64 bytes.
+    // 1 − This is the size in bytes of each element to be read.
+    // 64 − This is the number of elements, each one with a size of size bytes.
+    // infile − This is the pointer to a FILE object that specifies an input stream.
+	// nobytesread is the size of the block
+    // read 1 byte 64 times
+    size_t nobytesread = fread(M->eight, 1, 64, infile);
     if(nobytesread == 64)
         return 1;
 
-    // pad in last block if possible (can fit)
+    // pad in last block if possible (if it can fit)
     // otherwise add another block full of padding
     if(nobytesread < 56)    {
-        M->eight[nobytesread] = 0x80;
+        // adding 1 to message block before the zeros
+        // has to be a multiple of 8 i.e. 1000 0000
+        M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
+        // padding with zeros
         for (int i = nobytesread +1; i<56; i++) 
             M->eight[i] = 0;
+        // adding leagth of input to the end
         M->sixfour[7] = *nobits;
         *status = FINISH;
         return 1;
-
-
     }
 
     // last block to big to pad in the same block, 
@@ -113,7 +121,6 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
         M->eight[i] = 0;
     *status  = PAD0;
     return 1;
-
 }
 
 void nexthash(union block *M, uint32_t *H) {

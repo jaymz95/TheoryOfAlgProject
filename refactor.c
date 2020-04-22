@@ -104,8 +104,10 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
         return 0;
 
     if (*status== PAD0) {
+        // padding with zeros
         for (int i = 0; i < 56; i++)
             M->eight[i] = 0x00;
+        // adding leagth of input to the end
         M->sixfour[7] = bswap_64(*nobits);
         *status = FINISH;
         return 1;
@@ -123,7 +125,11 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
     // pad in last block if possible (can fit)
     // otherwise add another block full of padding
     if(nobytesread < 56) {
-        M->eight[nobytesread] = 0x80;
+        // adding 1 to message block before the zeros
+        // has to be a multiple of 8 i.e. 1000 0000
+        M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
+        
+        // padding with zeros
         for (i = nobytesread +1; i<56; i++) 
             M->eight[i] = 0;
         // everything but the last 64 bit integer i.e. 14*32
@@ -132,6 +138,7 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
             // bswap changes to big endian integers
             M->threetwo[i] = bswap_32(M->threetwo[i]);
         // bswap swaps endian
+        // adding leagth of input to the end
         M->sixfour[7] = bswap_64(*nobits);
         *status = FINISH;
         return 1;
@@ -141,7 +148,11 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
 
     // last block to big to pad in the same block, 
     // extra block full of padding added
-    M->eight[nobytesread] = 0x80;
+    
+    // adding 1 to message block before the zeros
+    // has to be a multiple of 8 i.e. 1000 0000
+    M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
+    // padding with zeros
     for (int i = nobytesread + 1; i < 64; i++)
         M->eight[i] = 0;
     for (i = 0; i < 16; i++)
