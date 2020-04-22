@@ -219,7 +219,7 @@ int main(int argc, char *argv[]) {
     uint32_t digest[16] = { a0, b0, c0, d0 }; // (Output is in little-endian)
 
     for (int i = 0; i < 16; i++){
-        printf("%02" PRIx32 " ", digest[i]);
+        printf("%02" PRIx32, digest[i]);
     }
     printf("\n");
 	fclose(infile);
