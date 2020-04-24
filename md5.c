@@ -61,7 +61,7 @@ enum flag {
 // is passed next block (*M)
 // star (*) means memory address
 // Reads the next Block of the padded message from input file
-int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status) {
+int nextblock(union block *M, uint32_t *input, uint64_t *nobits, enum flag *status) {
 
     int i; 
 
@@ -78,8 +78,15 @@ int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status)
         *status = FINISH;
         return 1;
     }
-
-	size_t nobytesread = fread(M->eight, 1, 64, infile);
+    
+    // Parameters
+    // M->eight − This is the pointer to a block of memory with a minimum size of size*64 bytes.
+    // 1 − This is the size in bytes of each element to be read.
+    // 64 − This is the number of elements, each one with a size of size bytes.
+    // infile − This is the pointer to a FILE object that specifies an input stream.
+	// nobytesread is the size of the block
+    // read 1 byte 64 times
+	size_t nobytesread = fread(M->eight, 1, 64, input);
     if(nobytesread == 64){
         for (i = 0; i < 16; i++){
             // bswap changes to big endian integers
@@ -182,20 +189,23 @@ void nexthash(WORD *M) {
     }
 
 }
-
+// The command line arguments are handled using main() function arguments 
+// where argc refers to the number of arguments passed, and argv[] is a 
+// pointer array which points to each argument passed to the program
 int main(int argc, char *argv[]) {
-
-      // Expect and open a single filename
+    char *input;
+    // Expect and open a single filename
 	if (argc != 2) {
 		printf("Error: expected single filename as argument.\n");
 		return 1;
 	}
+    input = argv[1];
 
-	FILE *infile = fopen(argv[1], "rb");
-	if (!infile) {
-		printf("Error: couldn't open file %s.\n", argv[1]);
-		return 1;
-	}
+	// FILE *infile = fopen(argv[1], "rb");
+	// if (!infile) {
+	// 	printf("Error: couldn't open file %s.\n", argv[1]);
+	// 	return 1;
+	// }
 
     //FILE *infile = "The quick brown fox jumps over the lazy dog.";
 	
@@ -213,7 +223,7 @@ int main(int argc, char *argv[]) {
     // read thriugh all of the padded message blocks
     // structs and unions in c are passed by value
     // pass the address of M (&)
-    while (nextblock(&M, infile, &nobits, &status)) {
+    while (nextblock(&M, (uint32_t*)input, &nobits, &status)) {
         //calculate the next hash value
         // M is not a pointer in this case (no arrow (->))
         // M.threetwo with no [] passes the
@@ -227,7 +237,7 @@ int main(int argc, char *argv[]) {
         printf("%02" PRIx32 " ", digest[i]);
     }
     printf("\n");
-	fclose(infile);
+	//fclose(infile);
 
 	return 0;
 }
