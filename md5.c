@@ -85,16 +85,6 @@ int nextblock(uint8_t *original_input) {
     uint32_t bits_len = 8*initial_len; 
     memcpy(input + new_len, &bits_len, 4);
 
-    nexthash(input);
-
-}
-
-// leftrotate function definition
-uint32_t leftrotate (uint32_t x, uint32_t c){
-    return ((x << c) | (x >> (32-c)));
-}
-
-void nexthash(uint8_t *input) {
     
     // Section 6.2.2
     WORD *W;
@@ -148,6 +138,18 @@ void nexthash(uint8_t *input) {
     
     // cleanup local msg variable for next time method is called
     free(input);
+
+    //nexthash(input);
+
+}
+
+// leftrotate function definition
+uint32_t leftrotate (uint32_t x, uint32_t c){
+    return ((x << c) | (x >> (32-c)));
+}
+
+void nexthash(uint8_t *input) {
+    
 
 }
 // The command line arguments are handled using main() function arguments 
