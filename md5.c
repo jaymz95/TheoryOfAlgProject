@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
         
     // }
     nextblock(input);
-    printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(h0), bswap_32(h1), bswap_32(h2), bswap_32(h3));
+    printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
    
     //uint32_t digest[16] = { a0, b0, c0, d0 }; // (Output is in little-endian)
 
