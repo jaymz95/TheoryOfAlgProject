@@ -44,6 +44,10 @@ uint32_t b0 = 0xefcdab89;   // B
 uint32_t c0 = 0x98badcfe;   // C
 uint32_t d0 = 0x10325476;   // D
 
+
+// leftrotate function definition
+#define leftrotate ((x, c) ((x << c) | (x >> (32-c))));
+
 // is passed next block (*M)
 // star (*) means memory address
 // Reads the next Block of the padded message from input file
@@ -141,11 +145,6 @@ int nextblock(uint8_t *original_input) {
 
     //nexthash(input);
 
-}
-
-// leftrotate function definition
-uint32_t leftrotate (uint32_t x, uint32_t c){
-    return ((x << c) | (x >> (32-c)));
 }
 
 void nexthash(uint8_t *input) {
