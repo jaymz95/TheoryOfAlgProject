@@ -55,9 +55,11 @@ union block {
 // is passed next block (*M)
 // star (*) means memory address
 // Reads the next Block of the padded message from input file
-int nextblock(union block *M, uint32_t *input, uint64_t *nobits) {
+int nextblock(union block *M, uint32_t *original_input, uint64_t *nobits) {
 
-    int i; 
+    int i;
+    // Message (to prepare)
+    union block *input = NULL; 
 
     // Parameters
     // M->eight − This is the pointer to a block of memory with a minimum size of size*64 bytes.
@@ -67,7 +69,7 @@ int nextblock(union block *M, uint32_t *input, uint64_t *nobits) {
 	// nobytesread is the size of the block
     // read 1 byte 64 times(512 bits)
     
-    size_t initial_len = strlen(input);
+    size_t initial_len = strlen(original_input);
     int new_len = ((((initial_len + 8) / 64) + 1) * 64) - 8;
 
     int offset;
