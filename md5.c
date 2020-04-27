@@ -51,41 +51,77 @@ union block {
 	uint8_t eight[64];
 };
 
-// enum is set to read at start
-// if i cant read 64 bits from file pad and finish
-// keeps track of where we are in padding the message
-enum flag {
-    READ, PAD0, FINISH
-};
 
 // is passed next block (*M)
 // star (*) means memory address
 // Reads the next Block of the padded message from input file
-int nextblock(union block *M, uint32_t *input, uint64_t *nobits, enum flag *status) {
+int nextblock(union block *M, uint32_t *input, uint64_t *nobits) {
 
     int i; 
 
-    // finnish breaks while loop in hash
-    if(*status == FINISH)
-        return 0;
-
-    if (*status== PAD0) {
-        // padding with zeros
-        for (int i = 0; i < 56; i++)
-            M->eight[i] = 0x00;
-        // adding leagth of input to the end
-        M->sixfour[7] = bswap_64(*nobits);
-        *status = FINISH;
-        return 1;
-    }
-    
     // Parameters
     // M->eight − This is the pointer to a block of memory with a minimum size of size*64 bytes.
     // 1 − This is the size in bytes of each element to be read.
     // 64 − This is the number of elements, each one with a size of size bytes.
     // infile − This is the pointer to a FILE object that specifies an input stream.
 	// nobytesread is the size of the block
-    // read 1 byte 64 times
+    // read 1 byte 64 times(512 bits)
+    
+    size_t initial_len = strlen(input);
+    int new_len = ((((initial_len + 8) / 64) + 1) * 64) - 8;
+
+    int offset;
+    for(offset=0; offset < new_len; offset += (512/8)) {
+        
+        printf("offset: %x\n", offset);
+ 
+        // break chunk into sixteen 32-bit words w[j], 0 ≤ j ≤ 15
+        uint32_t *w = (uint32_t *) (msg + offset);
+ 
+ 
+        // Initialize hash value for this chunk:
+        uint32_t a = h0;
+        uint32_t b = h1;
+        uint32_t c = h2;
+        uint32_t d = h3;
+ 
+        // Main loop:
+        uint32_t i;
+        for(i = 0; i<64; i++) {
+       
+            uint32_t f, g;
+ 
+             if (i < 16) {
+                f = (b & c) | ((~b) & d);
+                g = i;
+            } else if (i < 32) {
+                f = (d & b) | ((~d) & c);
+                g = (5*i + 1) % 16;
+            } else if (i < 48) {
+                f = b ^ c ^ d;
+                g = (3*i + 5) % 16;          
+            } else {
+                f = c ^ (b | (~d));
+                g = (7*i) % 16;
+            }
+
+            uint32_t temp = d;
+            d = c;
+            c = b;
+            //printf("rotateLeft(%x + %x + %x + %x, %d)\n", a, f, k[i], w[g], r[i]);
+            b = b + LEFTROTATE((a + f + k[i] + w[g]), r[i]);
+            a = temp;
+
+        }
+        // Add this chunk's hash to result so far:
+ 
+        h0 += a;
+        h1 += b;
+        h2 += c;
+        h3 += d;
+ 
+    }
+
 	size_t nobytesread = fread(M->eight, 1, 64, input);
     if(nobytesread == 64){
         for (i = 0; i < 16; i++){
@@ -196,10 +232,12 @@ int main(int argc, char *argv[]) {
     char *input;
     // Expect and open a single filename
 	if (argc != 2) {
-		printf("Error: expected single filename as argument.\n");
+		printf("Error: expected string as argument.\n");
 		return 1;
 	}
     input = argv[1];
+    size_t len = strlen(msg);
+    //md5(msg, len);
 
 	// FILE *infile = fopen(argv[1], "rb");
 	// if (!infile) {
