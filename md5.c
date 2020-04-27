@@ -89,16 +89,12 @@ int nextblock(uint8_t *original_input) {
     uint32_t bits_len = 8*initial_len; 
     memcpy(input + new_len, &bits_len, 4);
 
-    
-    // Section 6.2.2
-    WORD *W;
-
     // Process the message in successive 512-bit chunks:
     // for each 512-bit chunk of message:
     int offset;
     for(offset=0; offset < new_len; offset += (512/8)) {
         // dereferencing pointer (M->threeteo[t])
-        *W = (uint32_t *) (input + offset);
+        uint32_t *W = (uint32_t *) (input + offset);
         
         // Initialize hash value for this chunk:
         uint32_t A = a0;
