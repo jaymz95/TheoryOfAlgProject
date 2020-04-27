@@ -45,8 +45,8 @@ uint32_t c0 = 0x98badcfe;   // C
 uint32_t d0 = 0x10325476;   // D
 
 
-// leftrotate function definition
-#define leftrotate ((x, c) ((x << c) | (x >> (32-c))));
+// leftitrotate function definition
+#define leftitrotate(x, c) ((x << c) | (x >> (32-c)));
 
 // is passed next block (*M)
 // star (*) means memory address
@@ -132,7 +132,7 @@ int nextblock(uint8_t *original_input) {
             A = D;
             D = C;
             C = B;
-            B = B + leftrotate(F, s[i]);
+            B = B + leftitrotate(F, s[i]);
         }
         a0 = a0 + A;
         b0 = b0 + B;
