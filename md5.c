@@ -41,21 +41,10 @@ uint32_t b0 = 0xefcdab89;   // B
 uint32_t c0 = 0x98badcfe;   // C
 uint32_t d0 = 0x10325476;   // D
 
-
-// 64 byte variable(Block of memory) accessed using 3 types as shown
-// problem with compiler and OS sometimes 
-// depending on how(the order) the OS reads the Block in each type 
-union block {
-	uint64_t sixfour[8];
-	uint32_t threetwo[16];
-	uint8_t eight[64];
-};
-
-
 // is passed next block (*M)
 // star (*) means memory address
 // Reads the next Block of the padded message from input file
-int nextblock(uint32_t *original_input) {
+int nextblock(uint8_t *original_input) {
 
     int i;
     // Message (to prepare)
@@ -79,19 +68,19 @@ int nextblock(uint32_t *original_input) {
     // "1" Size of each block.
 
     // this line appends zeros (1 bit is added to the begining of these zeros after this line)
-    input->eight = calloc(new_len + 64, 1); // also appends "0" bits 
+    input = calloc(new_len + 64, 1); // also appends "0" bits 
                                    // (we allocate also 64 extra bytes )
     
     // copying initial_msg to msg 
     // with the size of initial message length
     // (+ 1) appending 1 bit
-    memcpy(input->eight, original_input, initial_len);
-    input->eight[initial_len] = 128; // write the "1" bit
+    memcpy(input, original_input, initial_len);
+    input[initial_len] = 128; // write the "1" bit
 
     // message length in bits rather than bytes
     // appends the length in bits at the end of the hash
     uint32_t bits_len = 8*initial_len; 
-    memcpy(input->eight + new_len, &bits_len, 4);
+    memcpy(input + new_len, &bits_len, 4);
 
     nexthash(input);
 
@@ -102,7 +91,7 @@ uint32_t leftrotate (uint32_t x, uint32_t c){
     return ((x << c) | (x >> (32-c)));
 }
 
-void nexthash(union block *input) {
+void nexthash(uint8_t *input) {
     
     // Section 6.2.2
     WORD *W;
@@ -112,7 +101,7 @@ void nexthash(union block *input) {
     int offset;
     for(offset=0; offset < new_len; offset += (512/8)) {
         // dereferencing pointer (M->threeteo[t])
-        *W = (uint32_t *) (input->eight + offset);
+        *W = (uint32_t *) (input + offset);
         
         // Initialize hash value for this chunk:
         uint32_t A = a0;
