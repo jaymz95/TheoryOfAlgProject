@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 #include <byteswap.h>
 
 //Define word Section 2.1
