@@ -61,16 +61,39 @@ int nextblock(union block *M, uint32_t *original_input, uint64_t *nobits) {
     // Message (to prepare)
     union block *input = NULL; 
 
-    // Parameters
-    // M->eight − This is the pointer to a block of memory with a minimum size of size*64 bytes.
-    // 1 − This is the size in bytes of each element to be read.
-    // 64 − This is the number of elements, each one with a size of size bytes.
-    // infile − This is the pointer to a FILE object that specifies an input stream.
-	// nobytesread is the size of the block
-    // read 1 byte 64 times(512 bits)
-    
     size_t initial_len = strlen(original_input);
+    
+    // Pre-processing: padding with zeros
+    //append "0" bit until message length in bit ≡ 448 (mod 512)
+    //append length mod (2 pow 64) to message
+    
+    // making sure its a multiple of 64 - 8 bytes 
+    // to add the 8 byte length to the end making 
+    // the total size divisible by 64
+    // i.e. the last block will be 448 bits rather than 512
+    // then the last 64 bits will be added (the initial length)
     int new_len = ((((initial_len + 8) / 64) + 1) * 64) - 8;
+
+    //Number of arguments: Unlike malloc(), calloc() takes two arguments:
+    // "new_len + 64" Number of blocks to be allocated.
+    // "1" Size of each block.
+
+    // this line appends zeros (1 bit is added to the begining of these zeros after this line)
+    input->eight = calloc(new_len + 64, 1); // also appends "0" bits 
+                                   // (we allocate also 64 extra bytes )
+    
+    // copying initial_msg to msg 
+    // with the size of initial message length
+    // (+ 1) appending 1 bit
+    memcpy(input->eight, original_input, initial_len);
+    input->eight[initial_len] = 128; // write the "1" bit
+
+    // message length in bits rather than bytes
+    // appends the length in bits at the end of the hash
+    uint32_t bits_len = 8*initial_len; 
+    memcpy(input->eight + new_len, &bits_len, 4);
+
+
 
     int offset;
     for(offset=0; offset < new_len; offset += (512/8)) {
