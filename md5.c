@@ -51,7 +51,7 @@ int nextblock(uint8_t *original_input) {
 
     int i;
     // Message (to prepare)
-    union block *input = NULL; 
+    uint8_t *input = NULL; 
 
     size_t initial_len = strlen(original_input);
     
