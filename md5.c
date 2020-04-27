@@ -141,7 +141,7 @@ void nexthash(union block *input) {
                 g = (7*i) % 16;
             }
             // Be wary of the below definitions of a,b,c,d
-            F = F + A + K[i] + w[g];  // M[g] must be a 32-bits block
+            F = F + A + K[i] + W[g];  // M[g] must be a 32-bits block
             //uint32_t temp = A;
             A = D;
             D = C;
@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
     input = argv[1];
-    size_t len = strlen(msg);
+    //size_t len = strlen(msg);
     //md5(msg, len);
 
 	// FILE *infile = fopen(argv[1], "rb");
@@ -181,9 +181,8 @@ int main(int argc, char *argv[]) {
     //FILE *infile = "The quick brown fox jumps over the lazy dog.";
 	
     // current padded message block
-	union block M;
-    uint64_t nobits = 0;
-    enum flag status = READ;
+	//union block M;
+    //uint64_t nobits = 0;
 
     // Section 5.3.3
     // WORD H[] = {
@@ -202,13 +201,15 @@ int main(int argc, char *argv[]) {
     //     nexthash(M.threetwo);
         
     // }
-    nextblock(input)
-    uint32_t digest[16] = { a0, b0, c0, d0 }; // (Output is in little-endian)
+    nextblock(input);
+    printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(h0), bswap_32(h1), bswap_32(h2), bswap_32(h3));
+   
+    //uint32_t digest[16] = { a0, b0, c0, d0 }; // (Output is in little-endian)
 
-    for (int i = 0; i < 4; i++){
-        printf("%02" PRIx32 " ", digest[i]);
-    }
-    printf("\n");
+    // for (int i = 0; i < 4; i++){
+    //     printf("%02" PRIx32 " ", digest[i]);
+    // }
+    // printf("\n");
 	//fclose(infile);
 
 	return 0;
