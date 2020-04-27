@@ -55,7 +55,7 @@ union block {
 // is passed next block (*M)
 // star (*) means memory address
 // Reads the next Block of the padded message from input file
-int nextblock(union block *M, uint32_t *original_input, uint64_t *nobits) {
+int nextblock(uint32_t *original_input) {
 
     int i;
     // Message (to prepare)
@@ -93,107 +93,8 @@ int nextblock(union block *M, uint32_t *original_input, uint64_t *nobits) {
     uint32_t bits_len = 8*initial_len; 
     memcpy(input->eight + new_len, &bits_len, 4);
 
+    nexthash(input);
 
-
-    int offset;
-    for(offset=0; offset < new_len; offset += (512/8)) {
-        
-        printf("offset: %x\n", offset);
- 
-        // break chunk into sixteen 32-bit words w[j], 0 ≤ j ≤ 15
-        uint32_t *w = (uint32_t *) (msg + offset);
- 
- 
-        // Initialize hash value for this chunk:
-        uint32_t a = h0;
-        uint32_t b = h1;
-        uint32_t c = h2;
-        uint32_t d = h3;
- 
-        // Main loop:
-        uint32_t i;
-        for(i = 0; i<64; i++) {
-       
-            uint32_t f, g;
- 
-             if (i < 16) {
-                f = (b & c) | ((~b) & d);
-                g = i;
-            } else if (i < 32) {
-                f = (d & b) | ((~d) & c);
-                g = (5*i + 1) % 16;
-            } else if (i < 48) {
-                f = b ^ c ^ d;
-                g = (3*i + 5) % 16;          
-            } else {
-                f = c ^ (b | (~d));
-                g = (7*i) % 16;
-            }
-
-            uint32_t temp = d;
-            d = c;
-            c = b;
-            //printf("rotateLeft(%x + %x + %x + %x, %d)\n", a, f, k[i], w[g], r[i]);
-            b = b + LEFTROTATE((a + f + k[i] + w[g]), r[i]);
-            a = temp;
-
-        }
-        // Add this chunk's hash to result so far:
- 
-        h0 += a;
-        h1 += b;
-        h2 += c;
-        h3 += d;
- 
-    }
-
-	size_t nobytesread = fread(M->eight, 1, 64, input);
-    if(nobytesread == 64){
-        for (i = 0; i < 16; i++){
-            // bswap changes to big endian integers
-            M->threetwo[i] = bswap_32(M->threetwo[i]);
-        }
-        return 1;
-    }
-
-    // pad in last block if possible (can fit)
-    // otherwise add another block full of padding
-    if(nobytesread < 56) {
-        // adding 1 to message block before the zeros
-        // has to be a multiple of 8 i.e. 1000 0000
-        M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
-        
-        // padding with zeros
-        for (i = nobytesread +1; i<56; i++) 
-            M->eight[i] = 0;
-        // everything but the last 64 bit integer i.e. 14*32
-        // rather than 16*32
-        for (i = 0; i < 14; i++)
-            // bswap changes to big endian integers
-            M->threetwo[i] = bswap_32(M->threetwo[i]);
-        // bswap swaps endian
-        // adding leagth of input to the end
-        M->sixfour[7] = bswap_64(*nobits);
-        *status = FINISH;
-        return 1;
-
-
-    }
-
-    // last block to big to pad in the same block, 
-    // extra block full of padding added
-    
-    // adding 1 to message block before the zeros
-    // has to be a multiple of 8 i.e. 1000 0000
-    M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
-    // padding with zeros
-    for (int i = nobytesread + 1; i < 64; i++)
-        M->eight[i] = 0;
-    for (i = 0; i < 16; i++)
-        // bswap changes to big endian integers
-        M->threetwo[i] = bswap_32(M->threetwo[i]);
-    *status  = PAD0;
-    return 1;
 }
 
 // leftrotate function definition
@@ -201,16 +102,17 @@ uint32_t leftrotate (uint32_t x, uint32_t c){
     return ((x << c) | (x >> (32-c)));
 }
 
-void nexthash(WORD *M) {
+void nexthash(union block *input) {
     
     // Section 6.2.2
-    WORD W[16];
-    WORD a, b, c, d, e, f, g, h, T1, T2;
-    int t;
+    WORD *W;
 
-    for (t = 0; t < 16; t++){
+    // Process the message in successive 512-bit chunks:
+    // for each 512-bit chunk of message:
+    int offset;
+    for(offset=0; offset < new_len; offset += (512/8)) {
         // dereferencing pointer (M->threeteo[t])
-        W[t] = M[t];
+        *W = (uint32_t *) (input->eight + offset);
         
         // Initialize hash value for this chunk:
         uint32_t A = a0;
@@ -218,14 +120,16 @@ void nexthash(WORD *M) {
         uint32_t C = c0;
         uint32_t D = d0;
         
-        for (t = 0; t < 64; t++){
+        // Main loop:
+        uint32_t i;
+        for(i = 0; i<64; i++) {
             uint32_t F, g;
             if (i >= 0 && i < 16){
-                F = (B & C) | ((!B) & D);
+                F = (B & C) | ((~B) & D);
                 g = i;
             }
             else if (i >= 16 && i <= 31) {
-                F = (D & B) | ((!D) & C);
+                F = (D & B) | ((~D) & C);
                 g = (5*i + 1) % 16;
             }
             else if (i >= 32 && i <= 47) {
@@ -233,11 +137,12 @@ void nexthash(WORD *M) {
                 g = (3*i + 5) % 16;
             }
             else if (i >= 48 && i <= 63) {
-                F = C ^ (B | (!D));
+                F = C ^ (B | (~D));
                 g = (7*i) % 16;
             }
             // Be wary of the below definitions of a,b,c,d
-            F = F + A + K[i] + M[g];  // M[g] must be a 32-bits block
+            F = F + A + K[i] + w[g];  // M[g] must be a 32-bits block
+            //uint32_t temp = A;
             A = D;
             D = C;
             C = B;
@@ -248,6 +153,9 @@ void nexthash(WORD *M) {
         c0 = c0 + C;
         d0 = d0 + D;
     }
+    
+    // cleanup local msg variable for next time method is called
+    free(input);
 
 }
 // The command line arguments are handled using main() function arguments 
@@ -286,14 +194,15 @@ int main(int argc, char *argv[]) {
     // read thriugh all of the padded message blocks
     // structs and unions in c are passed by value
     // pass the address of M (&)
-    while (nextblock(&M, (uint32_t*)input, &nobits, &status)) {
-        //calculate the next hash value
-        // M is not a pointer in this case (no arrow (->))
-        // M.threetwo with no [] passes the
-        // memory address of the first 32 integers
-        nexthash(M.threetwo);
+    // while (nextblock(&M, (uint32_t*)input, &nobits, &status)) {
+    //     //calculate the next hash value
+    //     // M is not a pointer in this case (no arrow (->))
+    //     // M.threetwo with no [] passes the
+    //     // memory address of the first 32 integers
+    //     nexthash(M.threetwo);
         
-    }
+    // }
+    nextblock(input)
     uint32_t digest[16] = { a0, b0, c0, d0 }; // (Output is in little-endian)
 
     for (int i = 0; i < 4; i++){
