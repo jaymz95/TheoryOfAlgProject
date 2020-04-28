@@ -5,13 +5,6 @@
 #include <stdint.h>
 #include <byteswap.h>
 
-//Define word Section 2.1
-#define WORD uint32_t
-
-// Note: All variables are unsigned 32 bit and wrap modulo 2^32 when calculating
-
-uint32_t i;
-
 // s specifies the per-round shift amounts
 uint32_t s[64] = { 7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
     5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20, 
@@ -73,7 +66,6 @@ int nextblock(uint8_t *original_input) {
     //Number of arguments: Unlike malloc(), calloc() takes two arguments:
     // "new_len + 64" Number of blocks to be allocated.
     // "1" Size of each block.
-
     // this line appends zeros (1 bit is added to the begining of these zeros after this line)
     input = calloc(new_len + 64, 1); // also appends "0" bits 
                                    // (we allocate also 64 extra bytes )
@@ -138,15 +130,8 @@ int nextblock(uint8_t *original_input) {
     
     // cleanup local msg variable for next time method is called
     free(input);
-
-    //nexthash(input);
-
 }
 
-void nexthash(uint8_t *input) {
-    
-
-}
 // The command line arguments are handled using main() function arguments 
 // where argc refers to the number of arguments passed, and argv[] is a 
 // pointer array which points to each argument passed to the program
@@ -158,48 +143,11 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
     input = argv[1];
-    //size_t len = strlen(msg);
-    //md5(msg, len);
-
-	// FILE *infile = fopen(argv[1], "rb");
-	// if (!infile) {
-	// 	printf("Error: couldn't open file %s.\n", argv[1]);
-	// 	return 1;
-	// }
-
-    //FILE *infile = "The quick brown fox jumps over the lazy dog.";
-	
-    // current padded message block
-	//union block M;
-    //uint64_t nobits = 0;
-
-    // Section 5.3.3
-    // WORD H[] = {
-    //     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-    //     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
-    // };
-    
-    // read thriugh all of the padded message blocks
-    // structs and unions in c are passed by value
-    // pass the address of M (&)
-    // while (nextblock(&M, (uint32_t*)input, &nobits, &status)) {
-    //     //calculate the next hash value
-    //     // M is not a pointer in this case (no arrow (->))
-    //     // M.threetwo with no [] passes the
-    //     // memory address of the first 32 integers
-    //     nexthash(M.threetwo);
-        
-    // }
+   
     nextblock(input);
+    
+    // bswap converts to big endian
     printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
    
-    //uint32_t digest[16] = { a0, b0, c0, d0 }; // (Output is in little-endian)
-
-    // for (int i = 0; i < 4; i++){
-    //     printf("%02" PRIx32 " ", digest[i]);
-    // }
-    // printf("\n");
-	//fclose(infile);
-
 	return 0;
 }
