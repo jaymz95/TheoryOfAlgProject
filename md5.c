@@ -74,7 +74,7 @@ int nextblock(uint8_t *original_input) {
     input = calloc(new_len + 64, 1); // also appends "0" bits 
                                    // (we allocate also 64 extra bytes )
     
-    // copying initial_msg to msg 
+    // copying original_input to input 
     // with the size of initial message length
     // (+ 1) appending 1 bit
     memcpy(input, original_input, initial_len);
@@ -131,7 +131,7 @@ int nextblock(uint8_t *original_input) {
         d0 = d0 + D;
     }
     
-    // cleanup local msg variable for next time method is called
+    // cleanup local input variable for next time method is called
     free(input);
 }
 
