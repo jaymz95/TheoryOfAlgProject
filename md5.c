@@ -1,3 +1,8 @@
+// James Mullarkey G00345716
+// The MD5 Hash Algorithm
+// ref: https://gist.github.com/creationix/4710780
+// ref: https://github.com/ianmcloughlin/sha256
+// ref: https://tools.ietf.org/html/rfc1321
 #include <stdio.h>
 #include <inttypes.h>
 #include <stdlib.h>
@@ -31,7 +36,7 @@ uint32_t K[64] = { 0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
     0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391 
 };
 
-// Initialize variables:
+// hash variables:
 uint32_t a0 = 0x67452301;   // A
 uint32_t b0 = 0xefcdab89;   // B
 uint32_t c0 = 0x98badcfe;   // C
@@ -54,7 +59,6 @@ int nextblock(uint8_t *original_input) {
     
     // Pre-processing: padding with zeros
     //append "0" bit until message length in bit ≡ 448 (mod 512)
-    //append length mod (2 pow 64) to message
     
     // making sure its a multiple of 64 - 8 bytes 
     // to add the 8 byte length to the end making 
@@ -85,7 +89,7 @@ int nextblock(uint8_t *original_input) {
     // for each 512-bit chunk of message:
     int offset;
     for(offset=0; offset < new_len; offset += (512/8)) {
-        // dereferencing pointer (M->threeteo[t])
+        // initialising block (512 bit)
         uint32_t *W = (uint32_t *) (input + offset);
         
         // Initialize hash value for this chunk:
@@ -116,7 +120,6 @@ int nextblock(uint8_t *original_input) {
             }
             // Be wary of the below definitions of a,b,c,d
             F = F + A + K[i] + W[g];  // M[g] must be a 32-bits block
-            //uint32_t temp = A;
             A = D;
             D = C;
             C = B;
