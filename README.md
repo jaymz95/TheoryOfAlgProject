@@ -2,6 +2,8 @@
 
 ### Comments in code explains code as you go through it
 
+![Image of Algorithm](https://github.com/jaymz95/TheoryOfAlgProject/blob/master/Theoryof.png)
+
 ## How to run code:
 #####   cd TheoryOfAlgProject
 #####   make md5
