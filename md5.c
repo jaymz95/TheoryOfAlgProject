@@ -148,14 +148,14 @@ int main(int argc, char *argv[]) {
     int c;
 
     opterr = 0;
-    printf("%d",getopt(argc, argv, "abc:"));
+    //printf("%d",getopt(argc, argv, "abc:"));
     while ((c = getopt (argc, argv, "abc:")) != -1){
         switch (c)
         {
-            case 'a':
+            case '-help':
                 aflag = 1;
                 break;
-            case 'b':
+            case '-test':
                 bflag = 1;
                 break;
             case 'c':
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
         }
         
 
-        printf("aflag = %d, bflag = %d, cvalue = %s\n", aflag, bflag, cvalue);
+        //printf("aflag = %d, bflag = %d, cvalue = %s\n", aflag, bflag, cvalue);
 
         for(index = optind; index < argc; index++)
             printf("Non-option argument %s\n", argv[index]);
@@ -185,10 +185,10 @@ int main(int argc, char *argv[]) {
 
     char *input;
     // Expect and open a single filename
-	//if (argc != 2) {
-	//	printf("Error: expected string as argument.\n");
-	//	return 1;
-	//}
+	if (argc != 2) {
+		printf("Error: expected string as argument.\n");
+		return 1;
+	}
     input = argv[1];
    
     nextblock(input);
