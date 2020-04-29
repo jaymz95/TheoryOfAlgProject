@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
 		        printf("	Command to test the MD5 hashing Algorithm: \n	     ./md5 -t \n");
                 break;
             case 't':
-		{
+            {
                 // test inputs
                 char *testInputs[3] = {"The quick brown fox jumps over the lazy dog", 
                         "The quick brown fox jumps over the lazy dog.", 
@@ -166,13 +166,14 @@ int main(int argc, char *argv[]) {
                 char *expectedResult[3] = {"9d7d109e82b62b37351dd86bd619a442",
                         "c209d9e41cfbd090adff68a0d0cb22df", "d98c1dd44b2008f980980e97e42f8ec"};
                 for(int i = 0; i < 3; i++){
+                    
                     nextblock(testInputs[i]);
+
                     char str[32];
                     char str2[32];
                     char str3[32];
                     char str4[32];
 
-                    
                     // getting result and converting and concatinating to string
                     sprintf(str, "%2.2x", a0);
                     sprintf(str2, "%2.2x", b0);
@@ -197,7 +198,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 break;
-		}
+            }
             default:
                 printf("Argument not recognised!\n");
                 abort ();
