@@ -160,15 +160,16 @@ int main(int argc, char *argv[]) {
 		        printf("	Command to test the MD5 hashing Algorithm: \n	     ./md5 -t \n");
                 break;
             case 't':
+		{
                 // test inputs
-                char *testInputs[] = "The quick brown fox jumps over the lazy dog", 
+                char *testInputs[3] = {"The quick brown fox jumps over the lazy dog", 
                         "The quick brown fox jumps over the lazy dog.", 
-                        "";
+                        ""};
                 // tests in small endian
-                char *expectedResult[] = "9d7d109e82b62b37351dd86bd619a442",
+                char *expectedResult[3] = {"9d7d109e82b62b37351dd86bd619a442",
                         "c209d9e41cfbd090adff68a0d0cb22df",
-                        "d98c1dd404b2008f980980e97e42f8ec";
-                for(int i = 0; i < 3: i++){
+                        "d98c1dd404b2008f980980e97e42f8ec"};
+                for(int i = 0; i < 3; i++){
                     nextblock(testInputs[i]);
                     char str[32];
                     char str2[32];
@@ -190,13 +191,17 @@ int main(int argc, char *argv[]) {
                         printf("Test No.%d Passed", i+1);
                     }else{
                         printf("Test No.%d Failed", i+1);
-                        break;
+                        //break;
                     }
                     printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
-                    
+                    free(a0);
+		    free(b0);
+		    free(c0);
+		    free(d0);
                 }
 
                 break;
+		}
             default:
                 printf("Argument not recognised!\n");
                 abort ();
