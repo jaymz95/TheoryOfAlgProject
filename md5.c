@@ -162,17 +162,19 @@ int main(int argc, char *argv[]) {
                 input = "The quick brown fox jumps over the lazy dog";
             
                 nextblock(input);
-		char *str;
+		        char *str;
 
                 //uint32_t expectedResult = "9e107d9d372bb6826bd81d3542a419d6";
                 sprintf(str, "%d", a0);
-	        printf("%s\n", str);
-		//	== 9e107d9d && bswap_32(b0) == 372bb682 && bswap_32(c0) == 6bd81d35 && bswap_32(d0) == 42a419d6){
+	            printf("%s\n", str);
+		        //	== 9e107d9d && bswap_32(b0) == 372bb682 && bswap_32(c0) == 6bd81d35 && bswap_32(d0) == 42a419d6){
                 //     printf("YESHHHHHHH!!!!!   :::\n");
                 // }else 
                 //     printf("NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!   :::\n");
                 // }
-		printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
+		        printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
+                printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", a0, b0, c0, d0);
+                //str = (char *)a0 + (char *)b0 + (char *)c0 + (char *)d0;
 
                 break;
             default:
