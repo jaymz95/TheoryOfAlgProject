@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <inttypes.h>
+#include <byteswap.h>
+
+//Define word Section 2.1
+#define WORD uint32_t
 
 // Section 4.2.2
-const uint32_t K[] = {
+const WORD K[] = {
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 
   0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 
   0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 
@@ -18,121 +22,58 @@ const uint32_t K[] = {
   0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-//section 4.1.2
-uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
-    return (x & y) ^ (~x & z);
-}
+
+// Deleting fucntions and replacing with pre-process directives //
+// section 4.1.2
+#define Ch(x, y, z) ((x & y) ^ (~x & z))
+
+// section 4.1.2
+#define Maj(x, y, z) ((x & y) ^ (x & z) ^ (y & z))
+
+// section 3.2
+#define SHR(x, n) (x >> n)
+
+// section 3.2
+#define ROTR(x, n) ((x >> n) | (x << (32 - n)))
+
+// section 4.1.2
+#define Sig0(x) (ROTR(x, 2) ^ ROTR(x, 13) ^ ROTR(x, 22))
 
 //section 4.1.2
-uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
-    return (x & y) ^ (x & z) ^ (y & z);
-}
-
-//section 3.2
-uint32_t SHR(uint32_t x, int n){
-    return x >> n;
-}
-
-//section 3.2
-uint32_t ROTR(uint32_t x, int n){
-    return (x >> n) | (x << (32 - n));
-}
+#define Sig1(x) (ROTR(x, 6) ^ ROTR(x, 11) ^ ROTR(x, 25))
 
 //section 4.1.2
-uint32_t Sig0(uint32_t x){
-    return ROTR(x, 2) ^ ROTR(x, 13) ^ ROTR(x, 22);
-}
+#define sig0(x) (ROTR(x, 7) ^ ROTR(x, 18) ^ SHR(x, 3))
 
 //section 4.1.2
-uint32_t Sig1(uint32_t x){
-    return ROTR(x, 6) ^ ROTR(x, 11) ^ ROTR(x, 25);
-}
+#define sig1(x) (ROTR(x, 17) ^ ROTR(x, 19) ^ SHR(x, 10))
 
-//section 4.1.2
-uint32_t sig0(uint32_t x){
-    return ROTR(x, 7) ^ ROTR(x, 18) ^ SHR(x, 3);
-}
-
-//section 4.1.2
-uint32_t sig1(uint32_t x){
-    return ROTR(x, 17) ^ ROTR(x, 19) ^ SHR(x, 10);
-}
-
-// 64 byte variable as 3 types as shown
+// 64 byte variable(Block of memory) accessed using 3 types as shown
 // problem with compiler and OS sometimes 
-// depending on how the OS reads the Block in each type 
+// depending on how(the order) the OS reads the Block in each type 
 union block {
 	uint64_t sixfour[8];
 	uint32_t threetwo[16];
 	uint8_t eight[64];
 };
 
-// enum is set to reat at start
+// enum is set to read at start
 // if i cant read 64 bits from file pad and finish
+// keeps track of where we are in padding the message
 enum flag {
     READ, PAD0, FINISH
 };
 
-// is passed next block (*M)
-// star (*) means memory address
-int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status) {
-
-    // finnish breaks while loop in hash
-    if(*status == FINISH)
-        return 0;
-
-    if (*status== PAD0) {
-        for (int i = 0; i < 56; i++)
-            M->eight[i] = 0;
-        M->sixfour[7] = *nobits;
-        *status = FINISH;
-        return 1;
-    }
-    // Parameters
-    // M->eight − This is the pointer to a block of memory with a minimum size of size*64 bytes.
-    // 1 − This is the size in bytes of each element to be read.
-    // 64 − This is the number of elements, each one with a size of size bytes.
-    // infile − This is the pointer to a FILE object that specifies an input stream.
-	// nobytesread is the size of the block
-    // read 1 byte 64 times
-    size_t nobytesread = fread(M->eight, 1, 64, infile);
-    if(nobytesread == 64)
-        return 1;
-
-    // pad in last block if possible (if it can fit)
-    // otherwise add another block full of padding
-    if(nobytesread < 56)    {
-        // adding 1 to message block before the zeros
-        // has to be a multiple of 8 i.e. 1000 0000
-        M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
-        // padding with zeros
-        for (int i = nobytesread +1; i<56; i++) 
-            M->eight[i] = 0;
-        // adding leagth of input to the end
-        M->sixfour[7] = *nobits;
-        *status = FINISH;
-        return 1;
-    }
-
-    // last block to big to pad in the same block, 
-    // extra block full of padding added
-    M->eight[nobytesread] = 0x80;
-    for (int i = nobytesread + 1; i < 64; i++)
-        M->eight[i] = 0;
-    *status  = PAD0;
-    return 1;
-}
-
-void nexthash(union block *M, uint32_t *H) {
+void nexthash(WORD *M, WORD *H) {
 
     // Section 6.2.2
-    uint32_t W[64];
-    uint32_t a, b, c, d, e, f, g, h, T1, T2;
+    WORD W[64];
+    WORD a, b, c, d, e, f, g, h, T1, T2;
     int t;
 
     for (t = 0; t < 16; t++)
         // dereferencing pointer (M->threeteo[t])
-        W[t] = M->threetwo[t];
+        W[t] = M[t];
     
     for (t = 16; t < 64; t++)
         W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
@@ -145,15 +86,85 @@ void nexthash(union block *M, uint32_t *H) {
         T2 = Sig0(a) + Maj(a, b, c);
         h = g; g = f; f = e; e = d + T1;
         d = c; c = b; b = a; a = T1 + T2;
-        H[0] = a + H[0]; H[1] = b + H[1]; H[2] = c + H[2]; H[3] =d + H[3];
-        H[4] = e + H[4]; H[5] = f + H[5]; H[6] = g + H[6]; H[7] = f + H[7];
+    }
+    H[0] = a + H[0]; H[1] = b + H[1]; H[2] = c + H[2]; H[3] = d + H[3];
+    H[4] = e + H[4]; H[5] = f + H[5]; H[6] = g + H[6]; H[7] = h + H[7];
+
+}
+
+// is passed next block (*M)
+// star (*) means memory address
+// Reads the next Block of the padded message from input file
+int nextblock(union block *M, FILE *infile, uint64_t *nobits, enum flag *status) {
+
+    int i; 
+
+    // finnish breaks while loop in hash
+    if(*status == FINISH)
+        return 0;
+
+    if (*status== PAD0) {
+        // padding with zeros
+        for (int i = 0; i < 56; i++)
+            M->eight[i] = 0x00;
+        // adding leagth of input to the end
+        M->sixfour[7] = bswap_64(*nobits);
+        *status = FINISH;
+        return 1;
+    }
+
+	size_t nobytesread = fread(M->eight, 1, 64, infile);
+    if(nobytesread == 64){
+        for (i = 0; i < 16; i++){
+            // bswap changes to big endian integers
+            M->threetwo[i] = bswap_32(M->threetwo[i]);
+        }
+        return 1;
+    }
+
+    // pad in last block if possible (can fit)
+    // otherwise add another block full of padding
+    if(nobytesread < 56) {
+        // adding 1 to message block before the zeros
+        // has to be a multiple of 8 i.e. 1000 0000
+        M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
+        
+        // padding with zeros
+        for (i = nobytesread +1; i<56; i++) 
+            M->eight[i] = 0;
+        // everything but the last 64 bit integer i.e. 14*32
+        // rather than 16*32
+        for (i = 0; i < 14; i++)
+            // bswap changes to big endian integers
+            M->threetwo[i] = bswap_32(M->threetwo[i]);
+        // bswap swaps endian
+        // adding leagth of input to the end
+        M->sixfour[7] = bswap_64(*nobits);
+        *status = FINISH;
+        return 1;
 
 
     }
+
+    // last block to big to pad in the same block, 
+    // extra block full of padding added
+    
+    // adding 1 to message block before the zeros
+    // has to be a multiple of 8 i.e. 1000 0000
+    M->eight[nobytesread] = 0x80; // 0x80 is 1000 0000 in hexidecimal
+    // padding with zeros
+    for (int i = nobytesread + 1; i < 64; i++)
+        M->eight[i] = 0;
+    for (i = 0; i < 16; i++)
+        // bswap changes to big endian integers
+        M->threetwo[i] = bswap_32(M->threetwo[i]);
+    *status  = PAD0;
+    return 1;
 }
 
 int main(int argc, char *argv[]) {
 
+    // Expect and open a single filename
 	if (argc != 2) {
 		printf("Error: expected single filename as argument.\n");
 		return 1;
@@ -171,15 +182,20 @@ int main(int argc, char *argv[]) {
     enum flag status = READ;
 
     // Section 5.3.3
-    uint32_t H[] = {
+    WORD H[] = {
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
     };
     
     // read thriugh all of the padded message blocks
+    // structs and unions in c are passed by value
+    // pass the address of M (&M)
     while (nextblock(&M, infile, &nobits, &status)) {
         //calculate the next hash value
-        nexthash(&M, H);
+        // M is not a pointer in this case (no arrow (->))
+        // M.threetwo with no [] passes the
+        // memory address of the first 32 integers
+        nexthash(M.threetwo, H);
     }
 
     for (int i = 0; i < 8; i++){
