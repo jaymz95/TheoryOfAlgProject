@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
     int c;
 
     opterr = 0;
-
+    printf("%d",getopt(argc, argv, "abc:"));
     while ((c = getopt (argc, argv, "abc:")) != -1){
         switch (c)
         {
@@ -185,10 +185,10 @@ int main(int argc, char *argv[]) {
 
     char *input;
     // Expect and open a single filename
-	if (argc != 2) {
-		printf("Error: expected string as argument.\n");
-		return 1;
-	}
+	//if (argc != 2) {
+	//	printf("Error: expected string as argument.\n");
+	//	return 1;
+	//}
     input = argv[1];
    
     nextblock(input);
