@@ -9,6 +9,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <byteswap.h>
+#include <ctype.h>
+#include <unistd.h>
 
 // s specifies the per-round shift amounts
 uint32_t s[64] = { 7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
@@ -147,7 +149,7 @@ int main(int argc, char *argv[]) {
 
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "abc:")) != -1)
+    while ((c = getopt (argc, argv, "abc:")) != -1){
         switch (c)
         {
             case 'a':
