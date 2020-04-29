@@ -153,10 +153,10 @@ int main(int argc, char *argv[]) {
         {
             case 'h':
 		        printf("How to run this program: \n");
-		        printf("Command to create execute: make md5 \n");
-		        printf("Command to execute MD5 Hashinh Algorithm with string agrument:\n    ./md5 \"The quick brown fox jumps over the lazy dog\" \n");
-		        printf("Command to get help on how to run MD5 hashing Algorithm: \n     ./md5 -h \n");
-		        printf("Command to test the MD5 hashing Algorithm: \n     ./md5 -t \n");
+		        printf("	Command to create execute:\n		 make md5 \n");
+		        printf("	Command to execute MD5 Hashing Algorithm with string agrument:\n	    ./md5 \"The quick brown fox jumps over the lazy dog\" \n");
+		        printf("	Command to get help on how to run MD5 hashing Algorithm: \n	     ./md5 -h \n");
+		        printf("	Command to test the MD5 hashing Algorithm: \n	     ./md5 -t \n");
                 break;
             case 't':
                 input = "The quick brown fox jumps over the lazy dog";
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
 		        char str3[32];
 		        char str4[32];
 
-                char *expectedResult = "9d7d109e";
+                char *expectedResult = "9d7d109e82b62b37351dd86bd619a442";
                 //sprintf(str, "%d", a0);
                 
                 sprintf(str, "%2.2x", a0);
@@ -179,21 +179,13 @@ int main(int argc, char *argv[]) {
                 strcat(str, str4);
 	            printf("%s\n", str);
 		        //	=== 9e107d9d && bswap_32(b0) == 372bb682 && bswap_32(c0) == 6bd81d35 && bswap_32(d0) == 42a419d6){
-                int count = 0;
-		        for(int i = 0; i < 4; i++){
-
-            
-                    printf("\n%s=%s %d",str, expectedResult, strcmp(str, expectedResult));
-            
+                      
                     if(strcmp(str, expectedResult) == 0){
-                        count++;
+                        printf("Test Passed");
                     }else{
                         break;
                     }
-		        }
-                if(count == 4){
-                printf("Test passed");
-                }
+                
                     printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
                     printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", a0, b0, c0, d0);
                     //str = (char *)a0 + (char *)b0 + (char *)c0 + (char *)d0;
