@@ -194,10 +194,10 @@ int main(int argc, char *argv[]) {
                         //break;
                     }
                     printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
-                    free(a0);
-		    free(b0);
-		    free(c0);
-		    free(d0);
+                    a0 = 0x67452301;   // A reinitializing
+                    b0 = 0xefcdab89;   // B reinitializing
+                    c0 = 0x98badcfe;   // C reinitializing
+                    d0 = 0x10325476;   // D reinitializing
                 }
 
                 break;
