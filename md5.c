@@ -141,11 +141,9 @@ int nextblock(uint8_t *original_input) {
 // pointer array which points to each argument passed to the program
 int main(int argc, char *argv[]) {
 
-    int aflag = 0;
-    int bflag = 0;
-    char *cvalue = NULL;
     int index;
     int c;
+    char *input;
     //int h = "-help";	
     opterr = 0;
     //printf("%d",getopt(argc, argv, "abc:"));
@@ -161,23 +159,29 @@ int main(int argc, char *argv[]) {
 		        printf("Command to test the MD5 hashing Algorithm: \n     ./md5 -t \n");
                 break;
             case 't':
-                bflag = 1;
+                input = "The quick brown fox jumps over the lazy dog";
+            
+                nextblock(input);
+                //uint32_t expectedResult = 9e107d9d372bb6826bd81d3542a419d6;
+                if(bswap_32(a0) == 9e107d9d && bswap_32(b0) == 372bb682 && bswap_32(c0) == 6bd81d35 && bswap_32(d0) == 42a419d6){
+                    printf("YESHHHHHHH!!!!!   :::\n");
+                }else 
+                    printf("NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!   :::\n");
+                }
+                printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
+
                 break;
             default:
 		        printf("Argument not recognised!\n");
                 abort ();
         }
-        
-
-        //printf("aflag = %d, bflag = %d, cvalue = %s\n", aflag, bflag, cvalue);
 
         for(index = optind; index < argc; index++)
             printf("Non-option argument %s\n", argv[index]);
         return 0;
     }
 
-    char *input;
-    // Expect and open a single filename
+    // Expect and open a string
 	if (argc != 2) {
 		printf("Error: expected string as argument.\n");
 		return 1;
