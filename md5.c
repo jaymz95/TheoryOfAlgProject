@@ -144,11 +144,8 @@ int main(int argc, char *argv[]) {
     int index;
     int c;
     char *input;
-    //int h = "-help";	
     opterr = 0;
-    //printf("%d",getopt(argc, argv, "abc:"));
     while ((c = getopt (argc, argv, "ht")) != -1){
-        printf("option:  %c\n",optopt);
 	    switch (c)
         {
             case 'h':
@@ -167,8 +164,7 @@ int main(int argc, char *argv[]) {
                         ""};
                 // tests in small endian
                 char *expectedResult[3] = {"9d7d109e82b62b37351dd86bd619a442",
-                        "c209d9e41cfbd090adff68a0d0cb22df",
-                        "d98c1dd404b2008f980980e97e42f8ec"};
+                        "c209d9e41cfbd090adff68a0d0cb22df", "d98c1dd44b2008f980980e97e42f8ec"};
                 for(int i = 0; i < 3; i++){
                     nextblock(testInputs[i]);
                     char str[32];
@@ -188,12 +184,12 @@ int main(int argc, char *argv[]) {
 
                     // checking for correct resuly
                     if(strcmp(str, expectedResult[i]) == 0){
-                        printf("Test No.%d Passed", i+1);
+                        printf("Test No.%d Passed\n", i+1);
                     }else{
-                        printf("Test No.%d Failed", i+1);
+                        printf("Test No.%d Failed\n", i+1);
                         //break;
                     }
-                    printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
+                    printf("Result of \"%s\":\n%2.2x%2.2x%2.2x%2.2x\n\n", testInputs[i], bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
                     a0 = 0x67452301;   // A reinitializing
                     b0 = 0xefcdab89;   // B reinitializing
                     c0 = 0x98badcfe;   // C reinitializing
