@@ -163,11 +163,11 @@ int main(int argc, char *argv[]) {
             
                 nextblock(input);
                 //uint32_t expectedResult = 9e107d9d372bb6826bd81d3542a419d6;
-                if(bswap_32(a0) == 9e107d9d && bswap_32(b0) == 372bb682 && bswap_32(c0) == 6bd81d35 && bswap_32(d0) == 42a419d6){
-                    printf("YESHHHHHHH!!!!!   :::\n");
-                }else 
-                    printf("NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!   :::\n");
-                }
+                // if(bswap_32(a0) == 9e107d9d && bswap_32(b0) == 372bb682 && bswap_32(c0) == 6bd81d35 && bswap_32(d0) == 42a419d6){
+                //     printf("YESHHHHHHH!!!!!   :::\n");
+                // }else 
+                //     printf("NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!   :::\n");
+                // }
                 printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
 
                 break;
