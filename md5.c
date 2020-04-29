@@ -171,11 +171,11 @@ int main(int argc, char *argv[]) {
                 
                 sprintf(str, "%2.2x", a0, b0);
                 printf("\n::: %s",str);
-                if(str == expectedResult){
-                    printf("YESHHHHHHH!!!!!   :::\n");
-                }else 
-                    printf("NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!   :::\n");
-                }
+                // if(str == expectedResult){
+                //     printf("YESHHHHHHH!!!!!   :::\n");
+                // }else 
+                //     printf("NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!   :::\n");
+                // }
 		        printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
                 printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", a0, b0, c0, d0);
                 //str = (char *)a0 + (char *)b0 + (char *)c0 + (char *)d0;
