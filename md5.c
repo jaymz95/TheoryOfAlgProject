@@ -163,31 +163,49 @@ int main(int argc, char *argv[]) {
             
                 nextblock(input);
 		        char str[32];
+		        char str2[32];
+		        char str3[32];
+		        char str4[32];
 
-                char *expectedResult = "9e107d9d372bb6826bd81d3542a419d6";
+                char *expectedResult = "9d7d109e";
                 //sprintf(str, "%d", a0);
+                
+                sprintf(str, "%2.2x", a0);
+                sprintf(str2, "%2.2x", b0);
+                sprintf(str3, "%2.2x", c0);
+                sprintf(str4, "%2.2x", d0);
+                strcat(str, str2);
+                strcat(str, str3);
+                strcat(str, str4);
 	            printf("%s\n", str);
 		        //	=== 9e107d9d && bswap_32(b0) == 372bb682 && bswap_32(c0) == 6bd81d35 && bswap_32(d0) == 42a419d6){
-                
-                sprintf(str, "%2.2x", a0, b0);
-                printf("\n::: %s",str);
-                // if(str == expectedResult){
-                //     printf("YESHHHHHHH!!!!!   :::\n");
-                // }else 
-                //     printf("NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!   :::\n");
-                // }
-		        printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
-                printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", a0, b0, c0, d0);
-                //str = (char *)a0 + (char *)b0 + (char *)c0 + (char *)d0;
-                break;
-            default:
-		        printf("Argument not recognised!\n");
-                abort ();
-        }
+                int count = 0;
+		        for(int i = 0; i < 4; i++){
 
-        for(index = optind; index < argc; index++)
-            printf("Non-option argument %s\n", argv[index]);
-        return 0;
+            
+                    printf("\n%s=%s %d",str, expectedResult, strcmp(str, expectedResult));
+            
+                    if(strcmp(str, expectedResult) == 0){
+                        count++;
+                    }else{
+                        break;
+                    }
+		        }
+                if(count == 4){
+                printf("Test passed");
+                }
+                    printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", bswap_32(a0), bswap_32(b0), bswap_32(c0), bswap_32(d0));
+                    printf("\n%2.2x%2.2x%2.2x%2.2x\n\n", a0, b0, c0, d0);
+                    //str = (char *)a0 + (char *)b0 + (char *)c0 + (char *)d0;
+                    break;
+                default:
+                    printf("Argument not recognised!\n");
+                    abort ();
+            }
+
+            for(index = optind; index < argc; index++)
+                printf("Non-option argument %s\n", argv[index]);
+            return 0;
     }
 
     // Expect and open a string
