@@ -149,18 +149,22 @@ int main(int argc, char *argv[]) {
     //int h = "-help";	
     opterr = 0;
     //printf("%d",getopt(argc, argv, "abc:"));
-    while ((c = getopt (argc, argv, "ht:")) != -1){
+    while ((c = getopt (argc, argv, "ht")) != -1){
         printf("option:  %c\n",optopt);
-	switch (c)
+	    switch (c)
         {
             case 'h':
-                aflag = 1;
+		        printf("How to run this program: \n");
+		        printf("Command to create execute: make md5 \n");
+		        printf("Command to execute MD5 Hashinh Algorithm with string agrument:\n    ./md5 \"The quick brown fox jumps over the lazy dog\" \n");
+		        printf("Command to get help on how to run MD5 hashing Algorithm: \n     ./md5 -h \n");
+		        printf("Command to test the MD5 hashing Algorithm: \n     ./md5 -t \n");
                 break;
             case 't':
                 bflag = 1;
                 break;
             default:
-		printf("Argument not recognised!\n");
+		        printf("Argument not recognised!\n");
                 abort ();
         }
         
