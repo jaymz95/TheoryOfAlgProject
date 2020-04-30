@@ -10,12 +10,6 @@
   **md5.c** - contains the code for a MD5 hasing algorithm.
   
   **sha256.c** - contains the code for a SHA256 hasing algorithm.
-My MD5 algrithm works by runnging these commands:
-* make md5
-* ./md5 "The quick brown fox jumps over the lazy dog"
-
-make md5 - created the exicutable file and "./md5 "The quick....." runs it with the input string"
-the input string is then used to hash in the algorithm when it is passed to the nextblock fucntion.
 
 First the legth of the string is calculated. The lenth after padding is calculated divisable by 512 blocks, 
 except the last balck which is 512-64 = 448(64 bit space made for the length of the string input 
@@ -34,16 +28,39 @@ An introduction to your repository and code. Describe
 what is contained in the repository and what the code does.
 
 ## Run 
+My MD5 algrithm works by runnging these commands:
+* make md5
+* ./md5 "The quick brown fox jumps over the lazy dog"
+
+make md5 - created the executable file and ./md5 "The quick brown fox jumps over the lazy dog" runs the algorithm with the input string.
+
+The input string is then used to hash in the algorithm when it is passed to the nextblock fucntion.
+
 You should explain how to download, compile, and run your code.
 Include instructions of how to install the compiler.
 Test Explain how to run the tests included in your code.
 
 
 ## Algorithm 
+The MD5 message-digest algorithm is hashing algorithm that is used to hash a user input resulting in a 128-bit hash. This Algorithm pads a user input by adding zeros to it until the length of them input it divisible by 512 bits (blocks) with 64 bits left empty at the end for the length of the original input to be appended. 1-bit is placed in the position before the padded zeros, right after the initial message ends. 
+Then the length of the original message is appended to the end of the padded making the new input divisible by 512-bits.
+
+Once padding is finished it is time for the message to be hashed using the calculations from the documentation. These calculations use logical operators. Its uses logical AND, logical OR, logical XOR, One’s Complement, Right Shift and Left Shift. Then the 128-bit hash is returned to the user.
+
 Give an overview and explanation of the main algorithm(s)
 in your code. You might use a well-thought out diagram here.
 
 ## Complexity 
+Seeing how I used C to code the algorithm I will be referencing the C operators in this document. In C the operators needed are as follows:
+| Operator Name  | Symbol  | 
+|---|---|
+| AND Operator  | &  |
+| OR Operator  | |  | 
+| One’s Complement Operator   | ~  | 
+| XOR Operator | ^  | 
+| Right Shift Operator  | >>  |
+| Left Shift Operator   | <<  |
+
 This should be the most significant part of the report.
 You must give an analysis of the complexity of the MD5 algorithm,
 including the complexity of algorithms that attempt to reverse the
