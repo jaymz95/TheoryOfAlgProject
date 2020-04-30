@@ -11,6 +11,12 @@
 ###   result should be: 9e107d9d372bb6826bd81d3542a419d6
 #####    result is in big endian(using bswap)
 
+## Command Line Arguments:
+#### ./md5 -h
+      Outputs user guide to running the code
+#### ./md5 -t
+      Tests scenarios on the algorithm and returns result to the user if it hass passed tests
+
 ### Implementaion:
 I wrote this program using the modules weekly video tutorials for the SHA265 hashing algorithm. I used this allong with the "The MD5 Message-Digest Algorithm" (https://tools.ietf.org/html/rfc1321) to create a rough version of the algorithm, altough it did not work correctly, so i used https://en.wikipedia.org/wiki/MD5 and https://gist.github.com/creationix/4710780 to fix the parts of my algorithm that didnt work. This can be shown in my commit history.
 
