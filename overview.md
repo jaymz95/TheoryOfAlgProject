@@ -11,8 +11,8 @@
   
   **sha256.c** - contains the code for a SHA256 hasing algorithm.
 
-First the legth of the string is calculated. The lenth after padding is calculated divisable by 512 blocks, 
-except the last balck which is 512-64 = 448(64 bit space made for the length of the string input 
+First the length of the string is calculated. The lenth after padding is calculated divisible by 512 blocks, 
+except the last black which is 512-64 = 448(64 bit space made for the length of the string input 
 to appended to the end, as the algorithm requires). 
 
 calloc() is used to append the zeros to the empty spaces 
@@ -23,10 +23,6 @@ The message is processed in 512-bit chunks to pad and the resulting hash ia appe
 out by the standard documentation. The resulting hash is output ot the user.
 
 
-
-An introduction to your repository and code. Describe
-what is contained in the repository and what the code does.
-
 ## Run 
 My MD5 algrithm works by runnging these commands:
 * make md5
@@ -36,10 +32,6 @@ make md5 - created the executable file and ./md5 "The quick brown fox jumps over
 
 The input string is then used to hash in the algorithm when it is passed to the nextblock fucntion.
 
-You should explain how to download, compile, and run your code.
-Include instructions of how to install the compiler.
-Test Explain how to run the tests included in your code.
-
 
 ## Algorithm 
 The MD5 message-digest algorithm is hashing algorithm that is used to hash a user input resulting in a 128-bit hash. This Algorithm pads a user input by adding zeros to it until the length of them input it divisible by 512 bits (blocks) with 64 bits left empty at the end for the length of the original input to be appended. 1-bit is placed in the position before the padded zeros, right after the initial message ends. 
@@ -47,8 +39,7 @@ Then the length of the original message is appended to the end of the padded mak
 
 Once padding is finished it is time for the message to be hashed using the calculations from the documentation. These calculations use logical operators. Its uses logical AND, logical OR, logical XOR, One’s Complement, Right Shift and Left Shift. Then the 128-bit hash is returned to the user.
 
-Give an overview and explanation of the main algorithm(s)
-in your code. You might use a well-thought out diagram here.
+![Image of Algorithm](https://github.com/jaymz95/TheoryOfAlgProject/blob/master/Diagram.jpg)
 
 ## Complexity 
 Seeing how I used C to code the algorithm I will be referencing the C operators in this document. In C the operators needed are as follows:
@@ -157,14 +148,9 @@ refernce: Wikipedia (https://en.wikipedia.org/wiki/MD5)
 Pseudocode used for basis of project
 ```
 
-
-This should be the most significant part of the report.
-You must give an analysis of the complexity of the MD5 algorithm,
-including the complexity of algorithms that attempt to reverse the
-algorithm. That is, algorithms that attempt to find an input for
-which the MD5 algorithm produces a given output. You should
-research this topic before writing this section and your analysis
-should be carefully referenced.
+#### Endian
+Big Endian and little Endian is the order of bits in a binary representation of a number. When using the MD5 Message Digest Algorithm, different machines can get different results this is because Big Endian machine will display the resulting hash in a different order to a Little Endian machine. For this algorithm the result is in Little Endian as the Documentation suggests.
+A Big Endian machine puts the most significant bits to the front whereas a Little Endian machine does the opposite.  
 
 
 
@@ -196,9 +182,3 @@ should be carefully referenced.
 ***String compare in c*** https://stackoverflow.com/questions/8004237/how-do-i-properly-compare-strings
 
 ***Convert uint32_t to string in c for testing*** https://www.geeksforgeeks.org/what-is-the-best-way-in-c-to-convert-a-number-to-a-string/
-
-
-Provide a list of references used in your project. The
-references should not just be a list of websites. Instead, there
-should be a short explanation of why each reference is relevant to
-your document.
