@@ -32,6 +32,12 @@ make md5 - created the executable file and ./md5 "The quick brown fox jumps over
 
 The input string is then used to hash in the algorithm when it is passed to the nextblock fucntion.
 
+## Test 
+### Command Line Arguments:
+#### ./md5 -h
+      Outputs user guide to running the code
+#### ./md5 -t
+      Tests scenarios on the algorithm and returns result to the user if it hass passed tests
 
 ## Algorithm 
 The MD5 message-digest algorithm is hashing algorithm that is used to hash a user input resulting in a 128-bit hash. This Algorithm pads a user input by adding zeros to it until the length of them input it divisible by 512 bits (blocks) with 64 bits left empty at the end for the length of the original input to be appended. 1-bit is placed in the position before the padded zeros, right after the initial message ends. 
@@ -152,6 +158,8 @@ Pseudocode used for basis of project
 Big Endian and little Endian is the order of bits in a binary representation of a number. When using the MD5 Message Digest Algorithm, different machines can get different results this is because Big Endian machine will display the resulting hash in a different order to a Little Endian machine. For this algorithm the result is in Little Endian as the Documentation suggests.
 A Big Endian machine puts the most significant bits to the front whereas a Little Endian machine does the opposite.  
 
+#### Security
+It is well documented that the MD5 algorithm does not have good security which is why it shouldn’t be used as an encryption algorithm. It was thought that SHA1 was a better algorithm for while, but after more research SHA1 turned out to have vulnerabilities of its own. Although with this information the MD5 algorithm is still very popular.
 
 
 ## References 
